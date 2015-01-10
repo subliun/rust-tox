@@ -9,7 +9,7 @@ use std::io::{timer};
 use std::sync::mpsc::{channel, Sender, Receiver, SyncSender, TryRecvError, sync_channel};
 
 pub enum Control {
-    Call(i32, Option<Box<CallSettings>>, i32, Sender<Result<i32, i32>>), 
+    Call(i32, Option<Box<CallSettings>>, i32, Sender<Result<i32, i32>>),
     Hangup(i32, Sender<Result<(), i32>>),
     Answer(i32, Option<Box<CallSettings>>, Sender<Result<(), i32>>),
     Reject(i32, Sender<Result<(), i32>>),
@@ -159,7 +159,7 @@ impl Backend {
             toxav_get_peer_csettings(self.raw, call_id, peer_id as c_int, &mut settings)
         };
         match res {
-            0 => Ok(box settings),
+            0 => Ok(Box::new(settings)),
             _ => Err(res),
         }
     }
@@ -246,7 +246,7 @@ impl Backend {
             return None;
         }
         let (event_send, event_recv) = channel();
-        let mut internal = box Internal { stop: false, events: event_send };
+        let mut internal = Box::new(Internal { stop: false, events: event_send });
 
         unsafe {
             let ip = &mut *internal as *mut _ as *mut c_void;

@@ -139,7 +139,7 @@ impl Backend {
         };
         match res {
             -1 => Err(()),
-            _ => Ok(box client),
+            _ => Ok(Box::new(client)),
         }
     }
 
@@ -646,7 +646,7 @@ impl Backend {
             return None;
         }
         let (event_send, event_recv) = channel();
-        let mut internal = box Internal { stop: false, events: event_send };
+        let mut internal = Box::new(Internal { stop: false, events: event_send });
 
         unsafe {
             let ip = &mut *internal as *mut _ as *mut c_void;
@@ -894,7 +894,7 @@ extern fn on_friend_request(_: *mut Tox, public_key: *const u8, data: *const u8,
     let internal = get_int!(internal);
     let msg = parse_string!(data, length);
     let id = ClientId { raw: unsafe { ptr::read(public_key as *const _) } };
-    send_or_stop!(internal, FriendRequest(box id, msg));
+    send_or_stop!(internal, FriendRequest(Box::new(id), msg));
 }
 
 extern fn on_friend_message(_: *mut Tox, friendnumber: i32, msg: *const u8, length: u16,
